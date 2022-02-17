@@ -1,0 +1,143 @@
+<!-- 
+ * Title: Project Header File
+ * Description: EJS header file
+ * Author: MD ARIFUL HASAN
+ * Date: 21/01/2022
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <link rel="shortcut icon" href="./images/favicon.png" type="image/x-icon">
+    <!-- box icon cdn  -->
+    <link
+      href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    
+    <!-- sweet alert 2 css -->
+    <link rel="stylesheet" href="./stylesheets/sweetalert2.min.css" />
+    <!-- main css -->
+    <link rel="stylesheet" href="./stylesheets/style.css" />
+    <!-- sweet alert 2 js -->
+    <script src="./js/sweetalert2.all.min.js"></script>
+    <!-- moment js -->
+    <script src="./js/moment.js"></script>
+
+  </head>
+  <body>
+    <!-- sidebar start  -->
+    <section class="sidebar close">
+      <div class="logo_details">
+        <img src="./images/brand.svg" alt="">
+        <span class="logo_name">Chat</span>
+      </div>
+
+      <!-- sidebar nav link start  -->
+      <ul class="nav_links">
+        <!-- link item 1  -->
+        <li>
+          <% if (loggedInUser && loggedInUser.username) { %>
+            <div class="profile_details">
+              <div class="profile_content">
+                <% if(loggedInUser && loggedInUser.avatar) { %>
+                  <img src="<%= loggedInUser.avatar %>" alt="<%= loggedInUser.username %>" />
+                <% } else { %>
+                  <img src="./images/nophoto.png" alt="">
+                <% } %>
+              </div>
+              <div class="name_job">
+                <div class="profile_name"><%= loggedInUser?.username.slice(0,10) %>...</div>
+                <div class="job"><%= loggedInUser?.role %></div>
+              </div >
+              <img src="./images/logout.svg" onclick="logout()" class="log_btn" />
+            </div>
+          <% } else { %> 
+            <div class="profile_details">
+              <div class="profile_content">
+                <img src="./images/login.png" alt="" />
+              </div>
+              <div class="name_job">
+                <div class="profile_name">Not Found</div>
+                <div class="job">Not Found</div>
+              </div>
+              <a href="/">
+                <img src="./images/login.svg" class="log_btn" />
+              </a>
+            </div>
+          <% } %>
+        </li>
+        
+        <li class="nav_item">
+          <a href="/inbox">
+            <i class="bx bx-collection"></i>
+            <span class="link_name">Inbox</span>
+          </a>
+          <ul class="sub_menu blank">
+            <li>
+              <a class="link_name" href="/inbox">Inbox</a>
+            </li>
+          </ul>
+        </li>
+        <!-- link item 2  -->
+        <li class="nav_item">
+          <a href="/users">
+            <i class="bx bxs-user-detail"></i>
+            <span class="link_name">Users</span>
+          </a>
+          <ul class="sub_menu blank">
+            <li>
+              <a class="link_name" href="/users">Users</a>
+            </li>
+          </ul>
+        </li>
+        <!-- link item 3  -->
+        <li class="nav_item">
+          <a href="/">
+            <i class="bx bx-log-in-circle"></i>
+            <span class="link_name">Login</span>
+          </a>
+          <ul class="sub_menu blank">
+            <li>
+              <a class="link_name" href="/">Login</a>
+            </li>
+          </ul>
+        </li>
+        <!-- link item end  -->
+      </ul>
+      <!-- sidebar nav link end  -->
+    </section>
+    <!-- sidebar end  -->
+
+    <!-- js -->
+    <script>
+      // toast 
+      // delete success toast
+      const logoutToast = () => {
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          title: "Successful !",
+          text: `You are being logged out...`,
+          icon: "success",
+          color: "#fff",
+          background: "linear-gradient(-225deg, #FF3CAC 0%, #562B7C 52%, #2B86C5 100%)",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+
+      function logout(){
+        fetch("/", {
+          method: "DELETE",
+        });
+        logoutToast();
+        setTimeout(()=>{
+          window.location.replace("/");
+        }, 1000);
+      }
+    </script>

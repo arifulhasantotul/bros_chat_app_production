@@ -1,0 +1,57 @@
+<%- include('./partials/header.ejs'); %>
+  <section class="home_section">
+    <div class="home_content">
+      <img class="toggle_button" src="./images/right-arrow-circle.svg" alt="toggle menu" />
+      <span class="text">Bros Chat Application</span>
+    </div>
+    <div id="login-container">
+      <div id="left-column"></div>
+      <div id="right-column">
+        <div id="login-form">
+          <div id="branding">
+            <img src="./images/logo.svg" />
+            <h2>Login</h2>
+          </div>
+          <form method="post" action="/">
+            <input
+              type="text"
+              name="username"
+              class="text_field"
+              placeholder="&#128374;  Enter mobile or email"
+              value="<%= data.username %>"
+            />
+            <% if (errors.username) { %>
+              <p class="error show"><%= errors.username.msg %></p>
+            <% } %>
+            <input type="password" name="password" class="text_field" placeholder="&#128477; Enter password" />
+            <% if (errors.password) { %>
+              <p class="error show"><%= errors.password.msg %></p>
+            <% } %>
+  
+            <% if (errors.common) { %>
+              <p class="error show"><%= errors.common.msg %></p>
+            <% } %>
+            <div class="register_buttons">
+              <input
+                type="submit"
+                name="sub"
+                value="Login &#10148;"
+                class="btn_register"
+              />
+              <input
+                type="reset"
+                name="res"
+                value="Reset &#128502;"
+                class="btn_register res"
+              />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- js -->
+  <script src="./js/header.js"></script>
+  
+</body>
+</html>

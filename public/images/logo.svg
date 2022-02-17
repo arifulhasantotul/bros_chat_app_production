@@ -1,0 +1,12 @@
+<svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M131.25 97.5L112.5 78.75H68.75C67.0924 78.75 65.5027 78.0915 64.3306 76.9194C63.1585 75.7473 62.5 74.1576 62.5 72.5V35C62.5 33.3424 63.1585 31.7527 64.3306 30.5806C65.5027 29.4085 67.0924 28.75 68.75 28.75H125C126.658 28.75 128.247 29.4085 129.419 30.5806C130.592 31.7527 131.25 33.3424 131.25 35V97.5Z" stroke="#2C3E50" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M87.5 93.75V106.25C87.5 107.908 86.8415 109.497 85.6694 110.669C84.4973 111.842 82.9076 112.5 81.25 112.5H37.5L18.75 131.25V68.75C18.75 67.0924 19.4085 65.5027 20.5806 64.3306C21.7527 63.1585 23.3424 62.5 25 62.5H37.5" stroke="#1E6262" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/>
+<ellipse cx="31" cy="74" rx="5" ry="5" fill="#1E6262"/>
+<ellipse cx="120" cy="40.25" rx="5" ry="5" fill="#2C3E50"/>
+<rect x="27" y="83" width="30" height="5" rx="2.5" fill="#1E6262"/>
+<rect x="95" y="49.25" width="30" height="5" rx="2.5" fill="#2C3E50"/>
+<rect x="27" y="92" width="50" height="5" rx="2.5" fill="#1E6262"/>
+<rect x="75" y="67.25" width="50" height="5" rx="2.5" fill="#2C3E50"/>
+<rect x="75" y="58.25" width="50" height="5" rx="2.5" fill="#2C3E50"/>
+<rect x="27" y="101" width="50" height="5" rx="2.5" fill="#1E6262"/>
+</svg>

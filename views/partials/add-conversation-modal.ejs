@@ -1,0 +1,167 @@
+<!-- 
+ * Title: Project Modal File
+ * Description: EJS add conversation modal file
+ * Author: MD ARIFUL HASAN
+ * Date: 21/01/2022
+-->
+
+<div class="modal-wrapper" id="add-conversation-modal">
+  <div class="modal">
+    <a onclick="closeModal()" class="modal-close">+</a>
+      <h2>Create Conversation</h2>
+      <form id="add-conversation-form">
+        <input
+          type="text"
+          placeholder="name or email or mobile"
+          name="user"
+          id="user"
+          class="text_field"
+          autocomplete="off"
+        />
+        <p class="error"></p>
+        <div class="search_users"></div>
+        <input type="submit" value="Submit" class="btn_register hide" />
+      </form>
+  </div>
+</div>
+<script>
+  const modal = document.querySelector("#add-conversation-modal");
+  // typing detector
+  let typingTimer;
+  const doneTypingInterval = 500;
+  const input = document.querySelector("input#user");
+  const conversation_list = document.querySelector("#conversation-list");
+  let users_placeholder = document.querySelector(".search_users");
+
+  // conversation create failed toast
+  const conversationFailureToast = () =>{
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      title: "Error !",
+      text: "Error creating a conversation!",
+      icon: "error",
+      color: "#fff",
+      background: "linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%)",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+  }
+
+  const conversationExistToast = () =>{
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      title: "Exists !",
+      text: "Conversation already exist!",
+      icon: "info",
+      background: "linear-gradient(to right, #f9d423 0%, #ff4e50 100%)",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+  }
+  
+  function closeModal() {
+    modal.style.display = "none";
+    // reset
+    users_placeholder.style.display = "none";
+    input.value = "";
+  }
+  function openModal() {
+    modal.style.display = "grid";
+  }
+
+  //on keyup, start the countdown
+  input.addEventListener("keyup", function () {
+    clearTimeout(typingTimer);
+    // reset
+    users_placeholder.style.display = "none";
+
+    if (input.value) {
+      typingTimer = setTimeout(searchUsers, doneTypingInterval); //user is "finished typing," send search request
+    }
+  });
+
+  //on keydown, clear the countdown
+  input.addEventListener("keydown", function () {
+    clearTimeout(typingTimer);
+  });
+
+  // send request for search
+  async function searchUsers() {
+    let response = await fetch("/inbox/search", {
+      method: "POST",
+      body: JSON.stringify({
+        user: input.value,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+
+    // get response
+    let result = await response.json();
+
+    // handle error and response
+    if (result.errors) {
+      const errorplaceholder = document.querySelector("p.error");
+      errorplaceholder.textContent = result.errors.common.msg;
+      errorplaceholder.style.display = "block";
+    } else {
+      if (result.length > 0) {
+        let generatedHtml = "<ul>";
+        result.forEach((user) => {
+          const avatar = user.avatar
+            ? "" + user.avatar
+            : "./images/nophoto.png";
+
+          generatedHtml += `<li onclick="createConversation('${user._id}', '${user.name}', '${user.avatar}', '${user.email}')">
+              <div class="user">
+                <div class="avatar">
+                  <img src="${avatar}" />
+                </div>
+                <div class="username">${user.name}</div>
+              </div>
+            </li>`;
+        });
+        generatedHtml += "</ul>";
+        users_placeholder.innerHTML = generatedHtml;
+        users_placeholder.style.display = "block";
+      }
+    }
+  }
+
+  // create Conversation
+  async function createConversation(participant_id, name, avatar, email) {
+    try {
+      const response = await fetch("/inbox/conversation", {
+        method: "POST",
+        body: JSON.stringify({
+          participant: name,
+          id: participant_id,
+          avatar: avatar != "undefined" ? avatar : null,
+          email: email,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      });
+
+      const result = response.json();
+      
+      if (!result.errors) {
+        // reset
+        users_placeholder.style.display = "none";
+        input.value = name;
+        // reload the page after 1 second
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      } else {
+        throw new Error(result.errors.common.msg);
+      }
+    } catch (err) {
+      conversationFailureToast();
+    }
+  }
+</script>

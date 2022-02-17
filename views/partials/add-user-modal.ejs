@@ -1,0 +1,233 @@
+<!-- 
+ * Title: Project Modal File
+ * Description: EJS add user modal file
+ * Author: MD ARIFUL HASAN
+ * Date: 21/01/2022
+-->
+
+<div class="modal-wrapper" id="add-user-modal">
+  <div class="modal" id="modal">
+    <a href="#" onclick="closeModal()" class="modal-close">+</a>
+      <h2>Add User</h2>
+    <form
+      method="post"
+      action="/users"
+      enctype="multipart/form-data"
+      id="add-user-form"
+    >
+      <input
+        type="text"
+        name="name"
+        placeholder="&#128374; Name"
+        class="text_field"
+      />
+      <p class="error name-error"></p>
+
+      <input
+        type="email"
+        name="email"
+        placeholder="&#9993; Email"
+        class="text_field"
+      />
+      <p class="error email-error"></p>
+
+      <input
+        type="password"
+        name="password"
+        placeholder="&#128477; Password"
+        class="text_field"
+      />
+      <p class="error password-error"></p>
+
+      <input
+        type="text"
+        name="mobile"
+        placeholder="&#128241; Mobile"
+        class="text_field"
+      />
+      <p class="error mobile-error"></p>
+
+      <label for="avatar" class="text_field field_label">
+        <img src="./images/camera.svg" alt="Add avatar" /> Avatar
+        <img src="./images/upload.svg" alt="/upload" />
+      </label>
+      <input
+        type="file"
+        id="avatar"
+        name="avatar"
+        class="text_field hide"
+      />
+      <p class="error avatar-error"></p>
+
+      <p class="error common-error"></p>
+
+      <div id="register_buttons" class="register_buttons">
+        <input
+          type="submit"
+          name="sub"
+          value="Sign Up &#10148;"
+          class="btn_register"
+        />
+        <input
+          type="reset"
+          name="res"
+          value="Reset &#128502;"
+          class="btn_register res"
+        />
+      </div>
+      <div id="register_loader" class="register_loader">
+        <div class="center"></div>
+      </div>
+    </form>
+    <div class="preview_container" id="preview_container">
+      <img src="" alt="Avatar Preview" class="image_preview" />
+      <span class="image_preview_text">Avatar Preview</span>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const modalContainer = document.querySelector("#add-user-modal");
+  const modal = document.getElementById("modal");
+  const form = document.querySelector("#add-user-form");
+  // input avatar field
+  const avatarField = document.getElementById("avatar");
+  // avatar preview container
+  const previewContainer = document.getElementById("preview_container");
+  // avatar preview image
+  const previewImage = previewContainer.querySelector(".image_preview");
+  // avatar preview default text
+  const previewDefaultText = previewContainer.querySelector(
+    ".image_preview_text"
+  );
+  // loader or buttons
+  const registerButtonsContainer = document.getElementById("register_buttons");
+  const registerLoaderContainer = document.getElementById("register_loader");
+  
+  
+  // success toast
+  const successAddUserToast = () => {
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      title: "Successful !",
+      text: "User was added successfully! Reloading the list...",
+      icon: "success",
+      color: "#fff",
+      background: "linear-gradient(-225deg, #FF3CAC 0%, #562B7C 52%, #2B86C5 100%)",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+  }
+
+  // failed toast
+  const failedAddUserToast = () =>{
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      title: "Error !",
+      text: "Oops, sorry! Couldn't add user",
+      icon: "error",
+      color: "#fff",
+      background: "linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%)",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+  }
+
+  function closeModal() {
+    modalContainer.style.display = "none";
+  }
+  function openModal() {
+    modalContainer.style.display = "grid";
+  }
+
+  // preview image functionality
+  avatarField.addEventListener("change", function () {
+    const file = this.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      previewDefaultText.style.display = "none";
+      previewImage.style.display = "block";
+
+      reader.addEventListener("load", function () {
+        previewImage.setAttribute("src", this.result);
+      });
+
+      reader.readAsDataURL(file);
+    } else {
+      previewDefaultText.style.display = null;
+      previewImage.style.display = null;
+      previewImage.setAttribute("src", "");
+    }
+  });
+
+  // form submit handler
+  form.onsubmit = async function (event) {
+    event.preventDefault();
+    registerButtonsContainer.style.display = "none";
+    registerLoaderContainer.style.display = "block";
+
+    // clear errors first
+    const errorPlaceholders = document.querySelectorAll("p.error");
+    for (let i = 0; i < errorPlaceholders.length; i++) {
+      errorPlaceholders[i].style.display = "none";
+    }
+
+    const inputErrors = document.querySelectorAll("input.error");
+    if (inputErrors.length > 0) {
+      for (let j = 0; j < inputErrors.length; j++) {
+        inputErrors[j].classList.remove("error");
+      }
+    }
+
+    // prepare the form data
+    const formData = new FormData(form);
+
+    // send the request to server
+    let response = await fetch("/users", {
+      method: "POST",
+      body: formData,
+    });
+
+    // get response
+    let result = await response.json();
+
+    // handle error and response
+    if (result.errors) {
+      // errors
+      Object.keys(result.errors).forEach((fieldName) => {
+        // add error class to all inputs
+        form[fieldName].classList.add("error");
+
+        // set all error placeholders (p tag) textContent
+        const errorPlaceholder = document.querySelector(`.${fieldName}-error`);
+        errorPlaceholder.textContent = result.errors[fieldName].msg;
+
+        // make all placeholders visible
+        errorPlaceholder.style.display = "block";
+        modal.style.transform = "translateY(18rem)";
+        previewContainer.style.top = "-13%";
+      });
+      // loader or buttons
+      registerButtonsContainer.style.display = "block";
+      registerLoaderContainer.style.display = "none";
+      failedAddUserToast();
+    } else {
+      // success
+      successAddUserToast();
+      closeModal();
+      document.querySelector("p.error").style.display = "none";
+      // loader or buttons
+      registerButtonsContainer.style.display = "block";
+      registerLoaderContainer.style.display = "none";
+      // reload the page after 1 second
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
+    }
+  };
+</script>

@@ -1,0 +1,229 @@
+<%- include('./partials/header.ejs'); %>
+  <section class="home_section">
+    <div class="home_content">
+      <img class="toggle_button" src="./images/right-arrow-circle.svg" alt="toggle menu" />
+      <span class="text">Bros Chat Application</span>
+    </div>
+    <div class="manageUser-container">
+      <div id="title">
+        <h2>Users</h2>
+      </div>
+
+      <% if(loggedInUser && loggedInUser.role === 'Admin') { %>
+      <div class="new-message-container new-user">
+        <a href="#" onclick="openModal()">+</a>
+      </div>
+      <% } %>
+
+      <div id="users-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="users-table">
+            <% users.forEach(function(user) { %>
+              <tr id="<%= user._id %>">
+                <td class="name">
+                  <% if (user.avatar) { %>
+                    <img src="<%= user.avatar %>" />
+                  <% } else { %>
+                    <img src="./images/nophoto.png" />
+                  <% } %>
+                  <span><%= user.name %></span>
+                </td>
+                <td><%= user.email %></td>
+                <td><%= user.role %></td>
+                <% if(loggedInUser && loggedInUser.role === 'Admin'){ %>
+                  <td class="manage">
+                    <img onclick="deleteUser('<%= user._id %>')" src="./images/trash.svg" alt="Delete" />
+                    <% if(user.role === "Admin"){ %>
+                    <img src="./images/admin_demote.svg" onclick="demoteAdmin('<%= user._id %>')" alt="make_user" />
+                    <% } else { %>
+                      <img src="./images/admin_promote.svg" onclick="makeAdmin('<%= user._id %>')" alt="make_admin" />
+                    <% } %>
+                  </td>
+                <% } else { %>
+                  <td>Sorry! Not Authorized.</td>
+                <% } %>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <%- include('./partials/add-user-modal.ejs'); %>
+  </section>
+
+  <!-- header js  -->
+  <script src="./js/header.js"></script>
+
+  <script>
+    // delete success toast
+    const successToast = (title, text) => {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        title: title,
+        text: text,
+        icon: "success",
+        color: "#fff",
+        background: "linear-gradient(-225deg, #FF3CAC 0%, #562B7C 52%, #2B86C5 100%)",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+
+    // delete cancel toast 
+    const cancelToast = ()=>{
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        title: "Cancelled !",
+        text: "Operation cancelled",
+        icon: "info",
+        background: "linear-gradient(to right, #f9d423 0%, #ff4e50 100%)",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+
+    // delete failed toast
+    const failedToast = (text) =>{
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        title: "Error !",
+        text: text,
+        icon: "error",
+        color: "#fff",
+        background: "linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%)",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }      
+    // delete user function
+    async function deleteUser(userId) {
+      // trigger confirm popup
+      Swal.fire({
+        title: 'Delete user?',
+        text: "User will delete permanently!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2ecc71',
+        cancelButtonColor: '#ff4757',
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Keep',
+        color: '#fff',
+        background: 'linear-gradient(-225deg, #FF3CAC 0%, #562B7C 52%, #2B86C5 100%)'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          let response = await fetch(`/users/${userId}`, {
+              method: "DELETE",
+          });
+
+          let result = await response.json();
+
+          if(!result.errors){
+            successToast("Deleted !", "User deleted successfully!");
+            document.getElementById(userId).remove();
+          } else {
+            failedToast(`Couldn't delete user !`);
+          }
+        } else {
+          cancelToast();
+        }
+      });
+    }
+    
+    // make admin function
+    async function makeAdmin(userId) {
+      // trigger confirm popup
+      Swal.fire({
+        title: 'Make Admin?',
+        text: "User will be promoted to Admin!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2ecc71',
+        cancelButtonColor: '#ff4757',
+        confirmButtonText: 'Promote',
+        cancelButtonText: 'No',
+        color: '#fff',
+        background: 'linear-gradient(-225deg, #FF3CAC 0%, #562B7C 52%, #2B86C5 100%)'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          let response = await fetch(`/users/makeadmin/${userId}`, {
+              method: "PUT",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+              },
+              body: JSON.stringify({role: 'Admin'})
+          });
+
+          let result = await response.json();
+          
+          if(!result.errors){
+            successToast("Promoted !", "User promoted to admin");
+      
+            // reload the page after 1 second
+            setTimeout(() => {
+              location.reload();
+            }, 1000);
+          } else {
+            failedToast(`Couldn't promote the user !`);
+          }
+        } else {
+          cancelToast();
+        }
+      });
+    }
+
+    // demoteAdmin
+    async function demoteAdmin(userId) {
+      // trigger confirm popup
+      Swal.fire({
+        title: 'Demote Admin?',
+        text: "Admin will be demoted to user!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2ecc71',
+        cancelButtonColor: '#ff4757',
+        confirmButtonText: 'Demote',
+        cancelButtonText: 'No',
+        color: '#fff',
+        background: 'linear-gradient(-225deg, #FF3CAC 0%, #562B7C 52%, #2B86C5 100%)'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          let response = await fetch(`/users/demoteadmin/${userId}`, {
+              method: "PUT",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+              },
+              body: JSON.stringify({role: 'User'})
+          });
+
+          let result = await response.json();
+
+          if(!result.errors){
+            successToast("Demoted !","Admin demoted to user!");
+      
+            // reload the page after 1 second
+            setTimeout(() => {
+              location.reload();
+            }, 1000);
+          } else {
+            failedToast(`Couldn't demoted admin!`);
+          }
+        } else {
+          cancelToast();
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
